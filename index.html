@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlantCare AI - Plant Disease Detection</title>
+  <link rel="stylesheet" href="app/static/css/style.css" />
+</head>
+
+<body>
+  <header class="pc-header">
+    <div class="pc-container">
+      <h1>PlantCare <span>AI</span></h1>
+      <p class="pc-subtitle">AI-powered plant disease detection for smarter, sustainable farming.</p>
+      <div class="pc-badges">
+        <span class="pc-badge"><strong>Model</strong> MobileNetV2 (Transfer Learning)</span>
+        <span class="pc-badge"><strong>Input</strong> 224×224 RGB</span>
+        <span class="pc-badge"><strong>Classes</strong> 38</span>
+        <span class="pc-badge"><strong>Use</strong> Farmers · Gardeners · Education</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="pc-container">
+    <section class="pc-card pc-hero">
+      <div>
+        <h2>Plant Disease Detection (AI)</h2>
+        <p>
+          Upload or capture a plant leaf image and PlantCare AI will classify it into one of <strong>38</strong> disease/healthy
+          categories across multiple crops (apple, corn, grape, potato, tomato, and more) using deep learning and transfer learning.
+        </p>
+        <div class="pc-divider"></div>
+        <h2>Upload or Capture Leaf Image</h2>
+        <p class="pc-muted">For best accuracy: use bright light, focus on a single leaf, and avoid blurry images.</p>
+
+      <div class="pc-alert" id="serverAlert" style="display:none;">
+        <p><strong>Server not running.</strong> Start the Flask server, then try again:</p>
+        <pre style="margin-top:0.5rem; white-space: pre-wrap;">cd "C:\Users\geddada madhuri\Desktop\dev spark"
+python app\app.py</pre>
+        <p>Then open this page again and upload the image.</p>
+      </div>
+
+      <form class="pc-form" id="uploadForm">
+        <div class="pc-file-input">
+          <label class="pc-hint" for="file">
+            Tip: On phone, this opens your camera/gallery. On laptop, choose a file.
+          </label>
+          <input type="file" id="file" name="file" accept="image/*" capture="environment" required />
+        </div>
+        <div class="pc-inline">
+          <button type="submit" class="pc-btn-primary" id="analyzeBtn">Analyze Leaf</button>
+          <button type="button" class="pc-btn-secondary" id="clearBtn">Clear</button>
+        </div>
+      </form>
+
+      <p class="pc-hint">
+        Supports: JPG, JPEG, PNG &middot; Images are resized to <strong>224×224</strong> for MobileNetV2 inference.
+      </p>
+      </div>
+
+      <div class="pc-kpi-grid">
+        <div class="pc-kpi">
+          <strong>87,000+</strong>
+          <span>Augmented RGB leaf images (dataset scale)</span>
+        </div>
+        <div class="pc-kpi">
+          <strong>Transfer Learning</strong>
+          <span>Frozen base + custom head (GAP + Dropout + Dense)</span>
+        </div>
+        <div class="pc-kpi">
+          <strong>Callbacks</strong>
+          <span>EarlyStopping · ReduceLROnPlateau · Checkpoint</span>
+        </div>
+        <div class="pc-kpi">
+          <strong>Real‑time</strong>
+          <span>Instant prediction in a web UI (Flask)</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="pc-card pc-result-card" id="resultCard" style="display:none;">
+      <h2>Result</h2>
+      <div class="pc-result-layout">
+        <div class="pc-result-image">
+          <img id="previewImg" alt="Uploaded plant leaf" />
+        </div>
+        <div class="pc-result-details">
+          <p class="pc-result-confidence"><strong>Status:</strong> <span id="status"></span></p>
+          <p class="pc-result-label" id="diseaseName"></p>
+          <p class="pc-result-confidence">Confidence: <span id="confidence"></span></p>
+
+          <h3>Top Predictions</h3>
+          <div class="pc-note">
+            <ul id="topPredictions"></ul>
+          </div>
+
+          <h3>Recommendation</h3>
+          <p class="pc-result-recommendation" id="recommendation"></p>
+
+          <h3>AI Care Plan</h3>
+          <div class="pc-note" id="careMeta"></div>
+
+          <h3>Immediate Actions</h3>
+          <ul class="pc-bullets" id="immediateActions"></ul>
+
+          <h3>Pesticide / Treatment Options (Educational)</h3>
+          <ul class="pc-bullets" id="treatments"></ul>
+
+          <h3>Prevention Tips</h3>
+          <ul class="pc-bullets" id="preventionTips"></ul>
+
+          <p class="pc-hint" id="disclaimer"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="pc-card">
+      <h2>How it Works (Deep Learning + Transfer Learning)</h2>
+      <div class="pc-accordion">
+        <details open>
+          <summary>Data &amp; Preprocessing</summary>
+          <p class="pc-muted" style="margin-top:0.6rem;">
+            Uses a large-scale plant disease dataset (87k+ augmented RGB images). Images are resized to
+            <strong>224×224</strong> to match MobileNetV2 input requirements and normalized for inference.
+          </p>
+        </details>
+        <details>
+          <summary>Model Architecture</summary>
+          <p class="pc-muted" style="margin-top:0.6rem;">
+            Base: <strong>MobileNetV2</strong> (ImageNet). Transfer learning is applied by freezing selected base layers and adding a custom head:
+            <strong>GlobalAveragePooling</strong> → <strong>Dropout</strong> → <strong>Dense (ReLU)</strong> → <strong>Dropout</strong> → <strong>Dense (Softmax, 38)</strong>.
+          </p>
+        </details>
+        <details>
+          <summary>Training Setup</summary>
+          <p class="pc-muted" style="margin-top:0.6rem;">
+            Optimizer: <strong>Adam</strong> · Loss: <strong>Categorical Cross-Entropy</strong> · Metric: <strong>Accuracy</strong>.
+            Uses callbacks: <strong>EarlyStopping</strong>, <strong>ReduceLROnPlateau</strong>, and <strong>ModelCheckpoint</strong> to reduce overfitting and stabilize convergence.
+          </p>
+        </details>
+        <details>
+          <summary>Deployment Scenarios</summary>
+          <ul class="pc-bullets">
+            <li><strong>Automated agricultural monitoring:</strong> integrate cameras + periodic scanning.</li>
+            <li><strong>Mobile use:</strong> upload/capture from phone to check home garden conditions.</li>
+            <li><strong>Education:</strong> training platforms for disease identification and best practices.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <section class="pc-card">
+      <h2>Healthy Crop &amp; Plant Tips (AI Guidance)</h2>
+      <div class="pc-two-col">
+        <div>
+          <h3>Best photo for prediction</h3>
+          <ul class="pc-bullets">
+            <li>Use bright natural light; avoid shadows.</li>
+            <li>Keep one leaf centered and in focus.</li>
+            <li>Capture both sides if symptoms are unclear.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Prevention basics</h3>
+          <ul class="pc-bullets">
+            <li>Water early morning; avoid wet foliage overnight.</li>
+            <li>Improve airflow with spacing and pruning.</li>
+            <li>Sanitize tools; remove diseased debris promptly.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="pc-hint">
+        After prediction, you’ll also get an AI care plan with treatment options and prevention tips.
+      </p>
+    </section>
+
+    <section class="pc-info-grid">
+      <article>
+        <h3>For Farmers &amp; Growers</h3>
+        <p>Early screening helps reduce crop loss and improves decision-making.</p>
+      </article>
+      <article>
+        <h3>For Home Gardeners</h3>
+        <p>Use phone or laptop to monitor plant health and act quickly.</p>
+      </article>
+      <article>
+        <h3>For Education</h3>
+        <p>Support learning with AI-assisted diagnosis and prevention guidance.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="pc-footer">
+    <div class="pc-container">
+      <p>&copy; 2026 PlantCare AI</p>
+    </div>
+  </footer>
+
+  <script>
+    const API_URL = "http://127.0.0.1:5000/api/predict";
+
+    const serverAlert = document.getElementById("serverAlert");
+    const uploadForm = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("file");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+
+    const resultCard = document.getElementById("resultCard");
+    const previewImg = document.getElementById("previewImg");
+    const statusEl = document.getElementById("status");
+    const diseaseNameEl = document.getElementById("diseaseName");
+    const confidenceEl = document.getElementById("confidence");
+    const topPredictionsEl = document.getElementById("topPredictions");
+    const recommendationEl = document.getElementById("recommendation");
+    const careMetaEl = document.getElementById("careMeta");
+    const immediateActionsEl = document.getElementById("immediateActions");
+    const treatmentsEl = document.getElementById("treatments");
+    const preventionTipsEl = document.getElementById("preventionTips");
+    const disclaimerEl = document.getElementById("disclaimer");
+    const clearBtn = document.getElementById("clearBtn");
+
+    function li(text) {
+      const el = document.createElement("li");
+      el.textContent = text;
+      return el;
+    }
+
+    function setLoading(isLoading) {
+      analyzeBtn.disabled = isLoading;
+      analyzeBtn.textContent = isLoading ? "Analyzing..." : "Analyze Leaf";
+    }
+
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      serverAlert.style.display = "none";
+
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+
+      previewImg.src = URL.createObjectURL(file);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      setLoading(true);
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: formData });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data || !data.ok) {
+          serverAlert.style.display = "block";
+          setLoading(false);
+          return;
+        }
+
+        statusEl.textContent = data.status || "";
+        diseaseNameEl.textContent = data.disease_name || data.predicted_label || "";
+        confidenceEl.textContent = ((data.predicted_confidence || 0) * 100).toFixed(2) + "%";
+        recommendationEl.textContent = data.recommendation || "";
+
+        topPredictionsEl.innerHTML = "";
+        (data.top_predictions || []).forEach(p => {
+          topPredictionsEl.appendChild(li(`${p.disease_name} — ${p.confidence_percent}`));
+        });
+
+        const cp = data.care_plan || null;
+        careMetaEl.innerHTML = "";
+        immediateActionsEl.innerHTML = "";
+        treatmentsEl.innerHTML = "";
+        preventionTipsEl.innerHTML = "";
+        disclaimerEl.textContent = "";
+
+        if (cp) {
+          careMetaEl.innerHTML = `<p><strong>Crop:</strong> ${cp.crop}</p>
+            <p><strong>Detected condition:</strong> ${cp.disease}</p>
+            <p><strong>Category:</strong> ${cp.category}</p>`;
+
+          (cp.immediate_actions || []).forEach(x => immediateActionsEl.appendChild(li(x)));
+          (cp.pesticide_or_treatment || []).forEach(x => treatmentsEl.appendChild(li(x)));
+          (cp.prevention_tips || []).forEach(x => preventionTipsEl.appendChild(li(x)));
+          disclaimerEl.innerHTML = `<strong>Important:</strong> ${cp.disclaimer || ""}`;
+        }
+
+        resultCard.style.display = "block";
+        resultCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (err) {
+        serverAlert.style.display = "block";
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      serverAlert.style.display = "none";
+      fileInput.value = "";
+      resultCard.style.display = "none";
+      previewImg.removeAttribute("src");
+      statusEl.textContent = "";
+      diseaseNameEl.textContent = "";
+      confidenceEl.textContent = "";
+      topPredictionsEl.innerHTML = "";
+      recommendationEl.textContent = "";
+      careMetaEl.innerHTML = "";
+      immediateActionsEl.innerHTML = "";
+      treatmentsEl.innerHTML = "";
+      preventionTipsEl.innerHTML = "";
+      disclaimerEl.textContent = "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+</body>
+
+</html>
+
